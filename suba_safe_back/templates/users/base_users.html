@@ -1,0 +1,68 @@
+<!-- prettier-ignore -->
+
+{% extends "base.html" %} 
+
+{% load static %} 
+
+{% block css %} 
+
+{% endblock css %}
+
+{% block js %}
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script>
+	const firebaseApp = firebase.initializeApp({
+		/* Firebase config */
+		apiKey: 'AIzaSyDPDqtAQStuRuNuZ1TorAsoLYSgkL399gY',
+		authDomain: 'subasafe-e683d.firebaseapp.com',
+		projectId: 'subasafe-e683d',
+		storageBucket: 'subasafe-e683d.appspot.com',
+		messagingSenderId: '260199917008',
+		appId: '1:260199917008:web:a04b88c52880f7ebe485d5',
+	});
+
+	const db = firebaseApp.firestore();
+	const auth = firebaseApp.auth();
+
+	function loginGoogle() {
+		var provider = new firebase.auth.GoogleAuthProvider();
+
+		firebase
+			.auth()
+			.signInWithPopup(provider)
+			.then((result) => {
+				/** @type {firebase.auth.OAuthCredential} */
+				var credential = result.credential;
+
+				// This gives you a Google Access Token. You can use it to access the Google API.
+				var token = credential.idToken;
+				// The signed-in user info.
+				var user = result.user;
+
+				console.log(user);
+
+				// Recuperar el ID TOKEN de user
+				user.getIdToken()
+					.then(function (idToken) {
+						console.log(idToken);
+					})
+					.catch(function (error) {});
+			})
+			.catch((error) => {
+				// Handle Errors here.
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				// The email of the user's account used.
+				var email = error.email;
+				// The firebase.auth.AuthCredential type that was used.
+				var credential = error.credential;
+
+				console.log(errorCode);
+			});
+	}
+</script>
+
+{% endblock js %}
