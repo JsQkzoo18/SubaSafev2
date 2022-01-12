@@ -46,7 +46,6 @@ class PaymentProcessSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=130)
     payment_type = serializers.IntegerField()
     status_payment = serializers.IntegerField()
-    article = serializers.IntegerField()
     auction = serializers.IntegerField()
 
     def validate_payment_type(self, value):

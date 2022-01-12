@@ -16,7 +16,30 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Imports de DRF-YASG
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Suba Safe API",
+      default_version='v2',
+      description="Documentación de la API de Suba Safe",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="alex-patricio1999@hotmail.com"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
 urlpatterns = [
+    # Urls de DRF-YASG
+    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redocs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
     path('admin/', admin.site.urls),
     path('', include('applications.users.urls')),
     path('', include('applications.article.urls')),
@@ -27,6 +50,7 @@ urlpatterns = [
     path('', include('applications.comment.urls')),
 
     # Routers del ViewSet
+    path('', include('applications.users.routers')),
     path('', include('applications.category.routers')),
     path('', include('applications.article.routers')),
     path('', include('applications.bid.routers')),

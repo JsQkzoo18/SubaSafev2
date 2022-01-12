@@ -3,10 +3,8 @@ from django.db import models
 from django.conf import settings
 
 # Imports de Modelos
-from applications.users.models import User
-from applications.article.models import Article
+#from applications.auction.models import Auction
 from model_utils.models import TimeStampedModel
-
 
 # Modelo que representa a un pago de un artículo
 class Payment(TimeStampedModel):
@@ -22,10 +20,8 @@ class Payment(TimeStampedModel):
         ('1', 'Pagado'),
     )
 
-
     amount = models.DecimalField('Monto', max_digits=7, decimal_places=2)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='usuario_pago')
-    article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name='articulos_pago')
     description = models.CharField('Descripción', max_length=130)
     payment_type = models.CharField('Tipo de Pago', max_length=25, choices=PAYMENT_TYPE_CHOICES, default=0)
     status_payment = models.CharField('Estado del Pago', max_length=25, blank=True, null=True, choices=PAYMENT_STATUS_CHOICES)

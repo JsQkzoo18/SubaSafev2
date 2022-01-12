@@ -4,9 +4,6 @@ from applications.payment.models import Payment
 
 from model_utils.models import TimeStampedModel
 
-from applications.article.models import Article
-from applications.payment.models import Payment
-
 
 class Auction(TimeStampedModel):
     start = models.DateTimeField(auto_now=False)

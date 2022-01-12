@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from .models import Payment
 from applications.article.models import Article
 from applications.auction.models import Auction
+
 from .models import Payment
 
 # Serializadores Imports
@@ -55,7 +56,7 @@ class PaymentProcessViewSet(viewsets.ViewSet):
         try:
             article = Payment.objects.get(article=article_id)
             
-            # Si ya existe un artículo con una subasta activa
+            # Si ya existe un artículo con un pago asignado
             if article:
                 return Response({'Status': 'Ya existe un pago sobre el artículo'})
         # Si no encuentra objeto Artículo en Pago
@@ -63,19 +64,25 @@ class PaymentProcessViewSet(viewsets.ViewSet):
 
             # Recuperar un objeto Artículo en Artículo
             try:
-                article = Auction.objects.get(article=article_id)
+                #article = Auction.objects.get(article=article_id)
+
                 auction = Auction.objects.get(id=auction_id)
 
                 payment = Payment.objects.create(
-                    amount = article.current_bid,
+                    amount = auction.article.current_bid,
                     user = self.request.user,
                     description = serializer.validated_data.pop('description'),
                     payment_type = serializer.validated_data.pop('payment_type'),
                     status_payment = serializer.validated_data.pop('status_payment'),
                     date_payment = timezone.now(),
-                    article = article,
+                    article = auction.article,
                 )
 
+                print('*********************************************')
+                print('*********************************************')
+                print(auction.payment)
+                print('*********************************************')
+                print('*********************************************')
                 auction.payment = payment
                 auction.save()
 

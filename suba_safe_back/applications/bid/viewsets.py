@@ -16,6 +16,7 @@ from .serializers import (
 # Modelos Imports
 from .models import Bid
 from applications.article.models import Article
+from applications.auction.models import Auction
 
 
 # Validar si una oferta es mayor a la oferta inicial o actual
@@ -58,6 +59,7 @@ class BidProcessViewSet(viewsets.ViewSet):
         
         # Recuperar un objeto Artículo en Artículo
         try:
+            article_in_auction = Auction.objects.get(article=article_id)
             article = Article.article_objects.get(id=article_id)
 
             # Comprobar si oferta es válida
@@ -79,8 +81,8 @@ class BidProcessViewSet(viewsets.ViewSet):
                 return Response({'Status': 'Su oferta no es válida'})
         
         # Sino encuentra objeto Artículo en Artículo
-        except Article.DoesNotExist:
-            return Response({'Status': 'El artículo no existe'})   
+        except Auction.DoesNotExist:
+            return Response({'Status': 'El artículo no tiene una subasta activa o no existe.'})   
     
     # Override de RETRIEVE para obtener una subasta específica
     def retrieve(self, request, pk=None):

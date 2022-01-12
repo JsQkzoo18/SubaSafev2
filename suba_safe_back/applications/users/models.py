@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     REQUIRED_FIELDS = ['username']
 
+    objects = UserManager()
     user_objects = UserManager()
     payment_objects = PaymentManager()
     bid_objects = BidManager()

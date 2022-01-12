@@ -5,8 +5,6 @@ from rest_framework.generics import (
 
 from firebase_admin import auth
 
-from django.shortcuts import render
-
 from django.views.generic import TemplateView
 
 # Imports de DRF
@@ -32,20 +30,17 @@ class GoogleLoginAPIView(APIView):
     serializer_class = LoginSocialSerializer
 
     def post(self, request):
-        #Extraer token de la petición Web
+        #Extraer lso datos enviados a traves de la petición
         serializer = self.serializer_class(data=request.data)
 
-        # Validar token
+        # Validar serializador
         serializer.is_valid(raise_exception=True)
 
-        # Si el token es válido, entonces se extrae el id
+        # Extraer el token
         token = serializer.data.get('token_id')
 
+        # Verificar si es un token FireBase válido
         decoded_token = auth.verify_id_token(token)
-
-        print('************************')
-        print(decoded_token)
-        print('************************')
 
         username = decoded_token['name']
         email = decoded_token['email']
@@ -80,9 +75,3 @@ class GoogleLoginAPIView(APIView):
                 'user': user_get,
             }
         )
-
-class UserAPIView(ListAPIView):
-    serializer_class = UserSerializer
-
-    def get_queryset(self):
-        return User.user_objects.all()

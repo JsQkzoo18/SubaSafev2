@@ -1,6 +1,7 @@
 #from pathlib import Path
 from unipath import Path
 
+import datetime
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().ancestor(3)
@@ -36,6 +37,9 @@ LOCAL_APPS = (
 THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
+    'rest_framework_simplejwt',
+    "corsheaders",
 )
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -43,6 +47,7 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -89,6 +94,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -111,4 +122,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Autenticación de los usuarios
 AUTH_USER_MODEL = 'users.User'
+
+# All origins will be allowed. Other settings restricting allowed origins will be ignored.
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Cookies will be allowed to be included in cross-site HTTP requests. 
+CORS_ALLOW_CREDENTIALS = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=120),
+}
 

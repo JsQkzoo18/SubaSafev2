@@ -2,14 +2,14 @@ from rest_framework import serializers
 
 from .models import Article
 from applications.category.models import Category
+from applications.category.serializers import CategorySerializer
 
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = (
-            'name',
-        )
+# class CategorySerializer(serializers.ModelSerializer):
+    # class Meta:
+        # model = Category
+        # fields = (
+            # 'name',
+        # )
 
 class ArticleSerializer(serializers.ModelSerializer):
 

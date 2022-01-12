@@ -1,3 +1,6 @@
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework import viewsets
 
@@ -13,8 +16,18 @@ def is_valid(category_name):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication, JWTAuthentication)
+
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+    def get_permissions(self):
+        # Si el método es LIST o RETRIEVE
+        if(self.action =='create'):
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [AllowAny]
+        #
+        return [permission() for permission in permission_classes]
 
     def create(self, request):
 
