@@ -39,5 +39,3 @@ class UserViewSet(viewsets.ModelViewSet):
             request.data['password'] = request.user.password
         
         return super().update(request, *args, **kwargs)
-
-

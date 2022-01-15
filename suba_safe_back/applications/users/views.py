@@ -2,31 +2,40 @@
 from rest_framework.generics import (
     ListAPIView,
 )
+from rest_framework import generics, views
+from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+
+from .utils import Util
 
 from firebase_admin import auth
 
+from django.contrib.sites.shortcuts import get_current_site
 from django.views.generic import TemplateView
+from django.urls import reverse
+from django.conf import settings
 
-# Imports de DRF
-from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+import jwt
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Imports de Serializadores
-from .serializers import LoginSocialSerializer
+from .serializers import LoginSocialSerializer, RegisterSerializer, EmailVerificationSerializer
 
 # Modelos
 from .models import User
-
-from .serializers import UserSerializer
-
+    
 
 class LoginUser(TemplateView):
     template_name = 'users/login.html'
 
 
+# Registro de una cuenta usando Firebase (Google)
 class GoogleLoginAPIView(APIView):
+
     serializer_class = LoginSocialSerializer
 
     def post(self, request):
@@ -75,3 +84,67 @@ class GoogleLoginAPIView(APIView):
                 'user': user_get,
             }
         )
+
+
+# API View para el registro de usuarios dentro de la app
+class RegisterAPIView(generics.GenericAPIView):
+
+    serializer_class = RegisterSerializer
+
+    def post(self, request):
+        user = request.data
+        serializer =self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        user_data = serializer.data
+
+        user = User.user_objects.get(email=user_data['email'])
+
+        token = RefreshToken.for_user(user).access_token
+        current_site = get_current_site(request).domain
+        relativeLink = reverse('users_app:verificar-email')
+        absurl = 'http://'+current_site+relativeLink+"?token="+str(token)
+        email_body = 'Hi ' + user.username + '\n' + 'Use the link below to verify your email \n' + absurl
+        data = {
+            'email_body': email_body, 
+            'email_recipient': user.email,
+            'email_subject': 'Verify your email'
+        }
+        #
+        Util.send_email(data)
+        #
+        #return Response({'Status': 'El usuario ha sido creado. Active su cuenta vía correo electrónico'})
+        return Response({'STATUS':user_data})
+
+
+# APIView para verificar por correo electrónico
+# el registro de un usuario dentro de la app
+class VerifyEmail(views.APIView):
+    
+    serializer_class = EmailVerificationSerializer
+    token_param_config = openapi.Parameter(
+        'token',
+        in_=openapi.IN_QUERY,
+        description = 'Description',
+        type = openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[token_param_config])
+    def get(self, request):
+        token = request.GET.get('token')
+
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+            user = User.objects.get(id = payload['user_id'])
+
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+
+            return Response({'STATUS': 'El usuario ha sido activado'})
+        except jwt.ExpiredSignatureError as identifier:
+            return Response({'STATUS': 'El link de activación ha expirado'})
+        except jwt.exceptions.DecodeError as identifier:
+            return Response({'STATUS': 'El token de usuario ha expirado'})

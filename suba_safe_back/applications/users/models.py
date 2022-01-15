@@ -1,11 +1,17 @@
 from django.db import models
-
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .managers import UserManager
+
 from applications.payment.managers import PaymentManager
 from applications.bid.managers import BidManager
 from applications.comment.managers import CommentManager
+
+#FIXME
+# Hacer las migraciones
+# Corregir los serializadores para la creación de un registro de usuarios
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -35,8 +41,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField('Teléfono', max_length=10)
     city = models.CharField('Ciudad', max_length=20, choices=CITY_CHOICES)
 
+    is_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
 
@@ -53,3 +60,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         return self.first_name + ' ' + self.last_name
+
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return{
+            'refresh': str(refresh),
+            'acces': str(refresh.access_token)
+        }

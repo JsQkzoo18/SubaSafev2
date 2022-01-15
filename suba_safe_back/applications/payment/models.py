@@ -32,4 +32,4 @@ class Payment(TimeStampedModel):
         verbose_name_plural = 'Pagos'
 
     def __str__(self):
-        return 'N° [' + str(self.id) + ']' + ' ' + str(self.date_payment)
+        return 'N° [' + str(self.id) + ']' + ' ' + str(self.amount)

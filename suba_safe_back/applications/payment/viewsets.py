@@ -1,19 +1,15 @@
 # Third-Party Apps Imports
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Imports de Django
-from django.utils import timezone
 from django.shortcuts import get_object_or_404
-
+from django.utils import timezone
 
 # Imports de los Modelos
-from .models import Payment
-from applications.article.models import Article
 from applications.auction.models import Auction
-
 from .models import Payment
 
 # Serializadores Imports
@@ -23,6 +19,7 @@ from .serializers import (
 )
 
 
+# APIView para el proceso de pagos
 class PaymentProcessViewSet(viewsets.ViewSet):
     # Únicamente los usuarios con un token de acceso podrán 
     # usar a las operaciones CRUD
@@ -49,23 +46,14 @@ class PaymentProcessViewSet(viewsets.ViewSet):
         serializer = PaymentProcessSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         #
-        article_id = serializer.validated_data['article']
         auction_id = serializer.validated_data['auction']
 
-        # Recuperar un objeto Artículo en Pago
-        try:
-            article = Payment.objects.get(article=article_id)
-            
-            # Si ya existe un artículo con un pago asignado
-            if article:
-                return Response({'Status': 'Ya existe un pago sobre el artículo'})
-        # Si no encuentra objeto Artículo en Pago
-        except Payment.DoesNotExist:
-
+        # Si ya existe un pago en una subasta activa
+        if Auction.objects.get(pk = auction_id).payment is not None:
+            return Response({'Status': 'Ya existe un pago sobre la subasta'})
+        else:
             # Recuperar un objeto Artículo en Artículo
             try:
-                #article = Auction.objects.get(article=article_id)
-
                 auction = Auction.objects.get(id=auction_id)
 
                 payment = Payment.objects.create(
@@ -75,14 +63,8 @@ class PaymentProcessViewSet(viewsets.ViewSet):
                     payment_type = serializer.validated_data.pop('payment_type'),
                     status_payment = serializer.validated_data.pop('status_payment'),
                     date_payment = timezone.now(),
-                    article = auction.article,
                 )
 
-                print('*********************************************')
-                print('*********************************************')
-                print(auction.payment)
-                print('*********************************************')
-                print('*********************************************')
                 auction.payment = payment
                 auction.save()
 

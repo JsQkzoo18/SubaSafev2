@@ -36,3 +36,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 # Configuración de FireBase
 cred = credentials.Certificate("FireBaseKey.json")
 firebase_admin.initialize_app(cred)
+
+# Configuraciones para el envío de email
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')

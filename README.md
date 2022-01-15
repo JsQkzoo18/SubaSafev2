@@ -1,4 +1,4 @@
-# ❗ **IMPORTANT: This is only a version of SubaSafe logic layer backend**
+# ❗ **IMPORTANT: This an API for Online Auction System SubaSafe**
 
 # Getting Started with Suba Safe Online Auction Site
 
@@ -51,13 +51,42 @@ Don't worry. It is easy to use. You must follow these steps:
     -   password: `<my_username>`
 
 -   **How to know my installed packages**
+
     -   `pip freeze --local`
+
+-   **Registrar un usuario vía Firebase (Google):**
+
+    1. Ingresar a la URL `http://localhost:8000/login/` aplastar sobre registrar y registrar la cuenta de google
+    2. Desde la consola del navegador, copiar el token otorgado por Firebase y copiarlo en la dirección `http://localhost:8000/api/google-login/`
+    3. Ahora se ha guardado un token dentro de la base de datos.
+
+-   **Registrar un usuario dentro de la app interna:**
+
+    1.  Ingresar a la URL `http://127.0.0.1:8000/api/auth/register/` y proveer los datos.
+    2.  Ingresar al correo. Se observará algo así: `Hi AlexSubaSafe Use the link below to verify your email http://127.0.0.1:8000/verificar-email/? token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9. eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUyNjQ5NTMwLCJpYXQiOjE2NDIyODE1MzAsImp0a SI6IjNkZGJhMThkMzBhMDQ4N2ZiYzM0NGQzYTYxMTg4OTI4IiwidXNlcl9pZCI6NH0. XktbXFfCutND9AlmJKasaLoXmn4vxEEwo53ls1Uk-hY`.
+
+        **Debería copiar:** `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9. eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUyNjQ5NTMwLCJpYXQiOjE2NDIyODE1MzAsImp0a SI6IjNkZGJhMThkMzBhMDQ4N2ZiYzM0NGQzYTYxMTg4OTI4IiwidXNlcl9pZCI6NH0. XktbXFfCutND9AlmJKasaLoXmn4vxEEwo53ls1Uk-hY`.
+
+    3.  Copie el token en la dirección `​http://127.0.0.1:8000/verificar-email​/`. Si tiene un mensaje de `{"STATUS": "El usuario ha sido activado"}` entonces puede continuar.
+
+-   **Autenticación de Sesión con Firebase Google:**
+
+    1. Para poder hacer las operaciones CRUD, se debe enviar los datos por cabecera.
+
+        **Key:** Authorization **Value:** Token 'token en la BD'
+
+-   **Autenticación de Sesión con un usuario interno:**
+
+    1. Ingrese en la dirección `http://127.0.0.1:8000/api/auth/login/` y loguee el correo y contraseña.
+    2. Para poder hacer las operaciones CRUD, se debe enviar los datos por cabecera.
+
+        **Key:** Authorization **Value:** Bearer 'token de acceso del paso anterior'
 
 # ⁉️ TROUBLESHOOTING
 
 -   **ERROR:** django is not recognized as a command:
 
-    **SOLUTION:** python and python3: Use python only when you are going to use manage.oy file.
+    **SOLUTION:** python and python3: Use python only when you are going to use manage.py file.
 
 -   **ERROR:** AssertionError at /api/users/
     'UserApiViewSet' should either include a `queryset` attribute, or override the `get_queryset()` method.

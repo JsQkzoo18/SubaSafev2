@@ -1,12 +1,9 @@
 # Imports de Third-Party Apps 
 from rest_framework import serializers
 
-# Imports Django 
-from django.db.models import fields
-
-# Imports de Modelos de la App Imports
-from .models import Payment
+# Imports de Modelos 
 from applications.users.models import User
+from .models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -41,6 +38,7 @@ class UsersInPaymentSerializer(serializers.ModelSerializer):
             'phone',
             'city',
         )
+
 
 class PaymentProcessSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=130)

@@ -129,7 +129,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Cookies will be allowed to be included in cross-site HTTP requests. 
 CORS_ALLOW_CREDENTIALS = True
 
+# Configuraciones de Simple JWT 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=120),
 }
+
 
