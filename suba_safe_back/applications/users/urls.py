@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
 
 from django.urls import path
 
-from . import views, viewsets
+from . import views
 
 app_name = 'users_app'
 

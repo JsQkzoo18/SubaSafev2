@@ -4,12 +4,21 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import viewsets
 
+
 # Imports de Django
+from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.urls import reverse
+
+# Serializar a JSON
+import json
+
+from applications.users.utils import Util
 
 # Imports de los Modelos
 from applications.auction.models import Auction
+from applications.article.models import Article
 from .models import Payment
 
 # Serializadores Imports
@@ -55,6 +64,8 @@ class PaymentProcessViewSet(viewsets.ViewSet):
             # Recuperar un objeto Artículo en Artículo
             try:
                 auction = Auction.objects.get(id=auction_id)
+                
+                article = Article.article_objects.get(id = auction.article.id)
 
                 payment = Payment.objects.create(
                     amount = auction.article.current_bid,
@@ -65,10 +76,26 @@ class PaymentProcessViewSet(viewsets.ViewSet):
                     date_payment = timezone.now(),
                 )
 
+                article.buyer = self.request.user
+                article.is_active = False
+                article.save()
+
                 auction.payment = payment
                 auction.save()
 
-                return Response({'Status': 'Su pago se ha guardado. Esperando la confirmación.'})
+                # Envío de correo electrónico cuando se cierra una subasta. 
+                current_site = get_current_site(request).domain
+                relativeLink = reverse('payment_app:confirmar-pago')
+                #absurl = 'http://'+current_site+relativeLink+"?token="+str(token)
+                email_body = 'Hi ' + str(self.request.user) + '\n' + 'Haz ganado la subasta de nombre: ' + str(article.name) + '\n' + 'El precio a pagar es: ' + str(article.current_bid) + ' $'
+                data = {
+                    'email_body': email_body, 
+                    'email_recipient': self.request.user,
+                    'email_subject': 'Confirmación del Pago'
+                }
+                #
+                Util.send_email(data)
+                return Response({'Status': 'Su pago se ha guardado.', 'Estado': 'Hay un ganador. Esperando la confirmación.'})
             except Auction.DoesNotExist:
                 return Response({'Status': 'El artículo no tiene una subasta activa o no existe'})
 
