@@ -6,7 +6,10 @@ from rest_framework import generics, views
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
+
 
 from .utils import Util
 
@@ -23,7 +26,12 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 # Imports de Serializadores
-from .serializers import LoginSocialSerializer, RegisterSerializer, EmailVerificationSerializer
+from .serializers import (
+    LoginSocialSerializer, 
+    RegisterSerializer, 
+    EmailVerificationSerializer,
+    UserSerializer
+)
 
 # Modelos
 from .models import User
@@ -115,7 +123,7 @@ class RegisterAPIView(generics.GenericAPIView):
         Util.send_email(data)
         #
         #return Response({'Status': 'El usuario ha sido creado. Active su cuenta vía correo electrónico'})
-        return Response({'STATUS':user_data})
+        return Response(user_data, status = status.HTTP_201_CREATED)
 
 
 # APIView para verificar por correo electrónico
@@ -148,3 +156,13 @@ class VerifyEmail(views.APIView):
             return Response({'STATUS': 'El link de activación ha expirado'})
         except jwt.exceptions.DecodeError as identifier:
             return Response({'STATUS': 'El token de usuario ha expirado'})
+
+
+# Vista para que un usuario autenticado 
+# pueda obtener sus datos
+class UserAuthView(APIView):
+    permission_class = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user, many=True)
+        return Response(serializer.data)
